@@ -24,9 +24,14 @@ class EventListener(private val plugin: PreemptionPlugin) : Listener {
         val uuid = plugin.blockOwner[material]
 
         if (uuid == null) {
-            plugin.setBlockOwner(material, player.uniqueId)
+            plugin.blockOwner[material] = player.uniqueId
+
             plugin.server.sendMessage(
-                text().content("${player.name}님이 ${material.name}을 차지하였습니다!").color(NamedTextColor.RED).build()
+                text().content(
+                    "${player.name}님이 ${
+                        material.name.replace('_', ' ')
+                    }을 차지하였습니다!"
+                ).color(NamedTextColor.RED).build()
             )
 
             world.spawn(block.location.clone().add(Vector(0.5, 0.5, 0.5)), Firework::class.java).apply {
@@ -42,6 +47,7 @@ class EventListener(private val plugin: PreemptionPlugin) : Listener {
                 }
                 detonate()
             }
+
         } else {
             if (uuid != player.uniqueId) {
                 event.isCancelled = true
@@ -63,16 +69,18 @@ class EventListener(private val plugin: PreemptionPlugin) : Listener {
         val player = event.player
         val uuid = player.uniqueId
 
-        val iterator = plugin.blockOwner.iterator()
+        val iterator = plugin.blockOwner.iterator
         while (iterator.hasNext()) {
             val entry = iterator.next()
 
             if (entry.value == uuid) {
-                plugin.setBlockOwner(entry.key, null)
+                plugin.blockOwner[entry.key] = null
 
                 plugin.server.sendMessage(
                     text().content(
-                        "${player.name}이 사망하여 ${entry.key.name}이 풀렸습니다!"
+                        "${player.name}이 사망하여 ${
+                            entry.key.name.replace('_', ' ')
+                        }이 풀렸습니다!"
                     ).color(NamedTextColor.GREEN).build()
                 )
             }
